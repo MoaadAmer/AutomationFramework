@@ -34,5 +34,38 @@ namespace AutomationFramework.Infrastructure.UI.Pages
             return normalized;
         }
 
+
+        public async Task<IReadOnlyList<ILocator>> GetNavboxListItemsByTitleAsync(string navboxTitle)
+        {
+            // Find a navbox table whose whole block contains the navboxTitle text.
+            // We then collect all list items within its .navbox-list containers.
+            // This is resilient to small structural changes within the navbox.
+            var navbox = _page.Locator("//table[contains(@class,'navbox')]")
+                              .Filter(new LocatorFilterOptions { HasTextString = navboxTitle });
+
+            await navbox.First.ScrollIntoViewIfNeededAsync();
+            await navbox.First.WaitForAsync();
+
+            // Collect all LI elements within the navbox lists
+            var items = navbox.Locator(".navbox-list li");
+            var all = await items.AllAsync();
+
+            return all;
+        }
+
+
+        public static async Task<(string? Href, string VisibleText)> GetLiAnchorAsync(ILocator li)
+        {
+            var a = li.Locator("a").First;
+            if (!await a.IsVisibleAsync())
+            {
+                return (null, await li.InnerTextAsync());
+            }
+            var href = await a.GetAttributeAsync("href");
+            var text = await a.InnerTextAsync();
+            return (href, text.Trim());
+        }
+
+
     }
 }
