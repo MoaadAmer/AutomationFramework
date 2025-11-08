@@ -1,6 +1,8 @@
 ﻿using AutomationFramework.Infrastructure.API;
 using AutomationFramework.Infrastructure.UI.Pages;
 using Microsoft.Playwright;
+using System;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace AutomationFramework.Tests
 {
@@ -46,7 +48,7 @@ namespace AutomationFramework.Tests
             string NavboxTitle = "Microsoft development tools";
 
             WikiPage WikiPage = await WikiPage.GoTo(Page);
-            IReadOnlyList<ILocator> items =await WikiPage.GetNavboxListItemsByTitleAsync(NavboxTitle);
+            IReadOnlyList<ILocator> items = await WikiPage.GetNavboxListItemsByTitleAsync(NavboxTitle);
 
 
 
@@ -67,6 +69,21 @@ namespace AutomationFramework.Tests
                 }
             }
         }
+
+
+
+        [TestMethod]
+        public async Task ChangeColorToDarkTest()
+        {
+            var wikiPage = await WikiPage.GoTo(Page);
+
+            // Act: open Appearance panel and choose "Dark"
+            await wikiPage.SwitchToDarkViaAppearanceAsync();
+
+            Assert.IsTrue(await wikiPage.IsDarkThemeActiveAsync());
+
+        }
+
 
     }
 }

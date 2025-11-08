@@ -67,5 +67,35 @@ namespace AutomationFramework.Infrastructure.UI.Pages
         }
 
 
+
+        public async Task SwitchToDarkViaAppearanceAsync()
+        {
+            // The 'Dark' radio is exposed by the right-side Appearance panel.
+            var darkRadio = _page.GetByRole(AriaRole.Radio, new() { Name = "Dark" });
+
+            // If not visible yet, open the Appearance control (glasses icon / 'Appearance' button)
+            if (!await darkRadio.IsVisibleAsync())
+            {
+                // Try common UI affordances to open the panel
+                var appearanceButton = _page.GetByRole(AriaRole.Button, new() { Name = "Appearance" });
+                if (!await appearanceButton.IsVisibleAsync())
+                {
+                    // Fallback: the glasses icon often has a title 'Appearance'
+                    appearanceButton = _page.Locator("a[title='Appearance'],button[title='Appearance']");
+                }
+
+                await appearanceButton.First.ClickAsync();
+            }
+
+            // Select the 'Dark' option
+            await darkRadio.CheckAsync();
+        }
+
+
+        public Task<bool> IsDarkThemeActiveAsync() =>
+            _page.EvaluateAsync<bool>("document.documentElement.classList.contains('skin-theme-clientpref-night')");
+
     }
+
+
 }
